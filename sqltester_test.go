@@ -31,7 +31,7 @@ func Test_getConnectionData(t *testing.T) {
 			}()
 
 			os.Args = tc.osArgs // setting os args for test
-			got, err := getConnectionData()
+			got, err := validateUserInput()
 			if (err != nil) != tc.wantErr {
 				t.Errorf("getConnectionData() error = %v, wantErr = %v", err, tc.wantErr)
 				return
