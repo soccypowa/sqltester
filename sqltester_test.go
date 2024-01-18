@@ -16,7 +16,7 @@ func Test_getConnectionData(t *testing.T) {
 	}{
 		{name: "Default params", want: serverInstance{"sql.test.com", false}, wantErr: false, osArgs: []string{"cmd", "sql.test.com"}},
 		{name: "No parameters", want: serverInstance{}, wantErr: true, osArgs: []string{"cmd"}},
-		{name: "Encryption enabked", want: serverInstance{"sql.test.com", true}, wantErr: false, osArgs: []string{"cmd", "--encrypt", "sql.test.com"}},
+		{name: "Encryption enabled", want: serverInstance{"sql.test.com", true}, wantErr: false, osArgs: []string{"cmd", "--encrypt", "sql.test.com"}},
 	}
 
 	for _, tc := range tests {
@@ -38,6 +38,27 @@ func Test_getConnectionData(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("getConnectionData() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func Test_createConnectionString(t *testing.T) {
+	tests := []struct {
+		name string
+		want string
+		args serverInstance
+	}{
+		{name: "Default instance", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=disable", args: serverInstance{instanceName: "sql.test.com"}},
+		{name: "Named instance", want: "sqlserver://sql.test.com/namedinstance?app+name=sqltester&encrypt=disable", args: serverInstance{instanceName: `sql.test.com\namedinstance`}},
+		{name: "With encryption", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=mandatory", args: serverInstance{instanceName: "sql.test.com", encrypt: true}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := createConnectionString(tc.args)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("createConnectionString() got = %v, want %v", got, tc.want)
 			}
 		})
 	}

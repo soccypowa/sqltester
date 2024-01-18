@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	_ "github.com/microsoft/go-mssqldb"
 )
@@ -39,7 +40,7 @@ func validateUserInput() (serverInstance, error) {
 	flag.Usage = appUsage
 	// We need a flag to know if we are going for encryption or not
 	// These flag(s) will show up with --help
-	encrypt := flag.Bool("encrypt", false, "Force connection encryption")
+	encrypt := flag.Bool("encrypt", false, "sets encrypt=mandatory (default: encrypt=disable)")
 
 	flag.Parse() //Parses the flags from the terminal
 
@@ -65,11 +66,24 @@ func createConnectionString(serverInfo serverInstance) string {
 	if !serverInfo.encrypt {
 		query.Add("encrypt", "disable")
 	} else {
-		query.Add("encrypt", "Mandatory")
+		query.Add("encrypt", "mandatory")
 	}
+
+	// To handle named instances vi have to split the string on the backslash
+	var host string
+	var path string
+	if !strings.Contains(serverInfo.instanceName, `\`) {
+		host = strings.Split(serverInfo.instanceName, `\`)[0]
+	} else {
+		host = strings.Split(serverInfo.instanceName, `\`)[0]
+		path = strings.Split(serverInfo.instanceName, `\`)[1]
+	}
+
+	// Construct the url, empty variables is omitted
 	url := url.URL{
 		Scheme:   "sqlserver",
-		Host:     serverInfo.instanceName,
+		Host:     host,
+		Path:     path,
 		RawQuery: query.Encode(),
 	}
 	return url.String()
