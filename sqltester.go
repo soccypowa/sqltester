@@ -35,7 +35,7 @@ func main() {
 func validateUserInput() (serverInstance, error) {
 	// We need a servername to continue
 	if len(os.Args) < 2 {
-		return serverInstance{}, errors.New("a server/instance name is required")
+		return serverInstance{}, errors.New("a server/instance name is required (use fqdn)")
 	}
 	flag.Usage = appUsage
 	// We need a flag to know if we are going for encryption or not
@@ -52,6 +52,7 @@ func validateUserInput() (serverInstance, error) {
 
 func appUsage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [Options] instance\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "Example: %s myserver.mydomain.com\n", filepath.Base(os.Args[0]))
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintf(os.Stderr, "Simple tool to test SQL server connectivity from the command line\n")
 	fmt.Fprintf(os.Stderr, "Windows auth is used and encryption can be forced\n")
