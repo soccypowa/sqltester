@@ -2,3 +2,4 @@
 .vscode
 sqltester
 sqltester.exe
+*.crt
