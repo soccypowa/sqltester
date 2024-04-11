@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/microsoft/go-mssqldb"
 )
@@ -18,18 +19,24 @@ type serverInstance struct {
 	encrypt      bool
 }
 
+var pings *int
+
 func main() {
 	serverinstance, err := validateUserInput()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	checkErr(err)
+
 	conString := createConnectionString(serverinstance)
-	if err := testConnection(conString); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+
+	db, err := openConnection(conString)
+	checkErr(err)
+
+	err = dbPinger(db)
+	checkErr(err)
+	if *pings > 1 {
+		repeatDbPinger(*pings, db)
 	}
-	fmt.Printf("succesfully connected to: %s\n", serverinstance.instanceName)
+
+	db.Close()
 }
 
 func validateUserInput() (serverInstance, error) {
@@ -41,6 +48,7 @@ func validateUserInput() (serverInstance, error) {
 	// We need a flag to know if we are going for encryption or not
 	// These flag(s) will show up with --help
 	encrypt := flag.Bool("encrypt", false, "sets encrypt=mandatory (default: encrypt=disable)")
+	pings = flag.Int("pings", 1, "pings to send (default: 1)")
 
 	flag.Parse() //Parses the flags from the terminal
 
@@ -63,6 +71,7 @@ func appUsage() {
 func createConnectionString(serverInfo serverInstance) string {
 	query := url.Values{}
 	query.Add("app name", "sqltester")
+	query.Add("keepalive", "35")
 	// We use "disable" and "mandatory" below as that is what MSFT uses (We don't use "optional" as it has some weird side effects)
 	if !serverInfo.encrypt {
 		query.Add("encrypt", "disable")
@@ -90,15 +99,40 @@ func createConnectionString(serverInfo serverInstance) string {
 	return url.String()
 }
 
-func testConnection(connectionString string) error {
+func openConnection(connectionString string) (*sql.DB, error) {
 	db, err := sql.Open("sqlserver", connectionString)
 	if err != nil {
-		return fmt.Errorf("failed to process connection string: %v", err)
+		return &sql.DB{}, fmt.Errorf("failed to process connection string: %v", err)
 	}
-	defer db.Close()
+	return db, nil
+}
+
+func dbPinger(db *sql.DB) error {
 	// We need to ping the db, open just checks that the connection string is valid
+	fmt.Println("Ping ->")
 	if err := db.Ping(); err != nil {
 		return fmt.Errorf("failed to connect to server: %v", err)
 	}
+	fmt.Printf("\t<- Pong\n")
 	return nil
+}
+
+func repeatDbPinger(pings int, db *sql.DB) {
+	for i := 0; i < pings-1; i++ {
+		fmt.Println("waiting for 30s")
+		time.Sleep(30 * time.Second)
+		err := dbPinger(db)
+		checkErr(err)
+	}
+}
+
+func exitGracefully(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		exitGracefully(err)
+	}
 }
