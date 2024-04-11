@@ -11,4 +11,10 @@ clean:
 	rm -rf sqltester.exe
 	rm -rf sqltester
 
-.PHONY: test tidy build
+listdepupdates:
+	go list -m -u all
+
+updatedeps:
+	go get -u
+
+.PHONY: test tidy build listdepupdates updatedeps
