@@ -20,16 +20,17 @@ type serverInstance struct {
 
 func main() {
 	serverinstance, err := validateUserInput()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	checkErr(err)
+
 	conString := createConnectionString(serverinstance)
-	if err := testConnection(conString); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	fmt.Printf("succesfully connected to: %s\n", serverinstance.instanceName)
+
+	db, err := openConnection(conString)
+	checkErr(err)
+
+	err = dbPinger(db)
+	checkErr(err)
+
+	db.Close()
 }
 
 func validateUserInput() (serverInstance, error) {
@@ -62,6 +63,7 @@ func appUsage() {
 
 func createConnectionString(serverInfo serverInstance) string {
 	query := url.Values{}
+	//TODO: Hardcode ttl
 	query.Add("app name", "sqltester")
 	// We use "disable" and "mandatory" below as that is what MSFT uses (We don't use "optional" as it has some weird side effects)
 	if !serverInfo.encrypt {
@@ -90,15 +92,31 @@ func createConnectionString(serverInfo serverInstance) string {
 	return url.String()
 }
 
-func testConnection(connectionString string) error {
+func openConnection(connectionString string) (*sql.DB, error) {
 	db, err := sql.Open("sqlserver", connectionString)
 	if err != nil {
-		return fmt.Errorf("failed to process connection string: %v", err)
+		return &sql.DB{}, fmt.Errorf("failed to process connection string: %v", err)
 	}
-	defer db.Close()
+	return db, nil
+}
+
+func dbPinger(db *sql.DB) error {
 	// We need to ping the db, open just checks that the connection string is valid
+	fmt.Println("Ping ->")
 	if err := db.Ping(); err != nil {
 		return fmt.Errorf("failed to connect to server: %v", err)
 	}
+	fmt.Printf("\t<- Pong\n")
 	return nil
+}
+
+func exitGracefully(err error) {
+	fmt.Fprintf(os.Stderr, err.Error())
+	os.Exit(1)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		exitGracefully(err)
+	}
 }
