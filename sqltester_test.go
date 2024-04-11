@@ -49,9 +49,9 @@ func Test_createConnectionString(t *testing.T) {
 		want string
 		args serverInstance
 	}{
-		{name: "Default instance", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=disable", args: serverInstance{instanceName: "sql.test.com"}},
-		{name: "Named instance", want: "sqlserver://sql.test.com/namedinstance?app+name=sqltester&encrypt=disable", args: serverInstance{instanceName: `sql.test.com\namedinstance`}},
-		{name: "With encryption", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=mandatory", args: serverInstance{instanceName: "sql.test.com", encrypt: true}},
+		{name: "Default instance", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=disable&keepalive=35", args: serverInstance{instanceName: "sql.test.com"}},
+		{name: "Named instance", want: "sqlserver://sql.test.com/namedinstance?app+name=sqltester&encrypt=disable&keepalive=35", args: serverInstance{instanceName: `sql.test.com\namedinstance`}},
+		{name: "With encryption", want: "sqlserver://sql.test.com?app+name=sqltester&encrypt=mandatory&keepalive=35", args: serverInstance{instanceName: "sql.test.com", encrypt: true}},
 	}
 
 	for _, tc := range tests {
