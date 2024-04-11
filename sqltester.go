@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/microsoft/go-mssqldb"
 )
@@ -17,6 +18,8 @@ type serverInstance struct {
 	instanceName string
 	encrypt      bool
 }
+
+var pings *int
 
 func main() {
 	serverinstance, err := validateUserInput()
@@ -29,6 +32,9 @@ func main() {
 
 	err = dbPinger(db)
 	checkErr(err)
+	if *pings > 1 {
+		repeatDbPinger(*pings, db)
+	}
 
 	db.Close()
 }
@@ -42,6 +48,7 @@ func validateUserInput() (serverInstance, error) {
 	// We need a flag to know if we are going for encryption or not
 	// These flag(s) will show up with --help
 	encrypt := flag.Bool("encrypt", false, "sets encrypt=mandatory (default: encrypt=disable)")
+	pings = flag.Int("pings", 1, "pings to send (default: 1)")
 
 	flag.Parse() //Parses the flags from the terminal
 
@@ -63,8 +70,8 @@ func appUsage() {
 
 func createConnectionString(serverInfo serverInstance) string {
 	query := url.Values{}
-	//TODO: Hardcode ttl
 	query.Add("app name", "sqltester")
+	query.Add("keepalive", "35")
 	// We use "disable" and "mandatory" below as that is what MSFT uses (We don't use "optional" as it has some weird side effects)
 	if !serverInfo.encrypt {
 		query.Add("encrypt", "disable")
@@ -110,8 +117,17 @@ func dbPinger(db *sql.DB) error {
 	return nil
 }
 
+func repeatDbPinger(pings int, db *sql.DB) {
+	for i := 0; i < pings-1; i++ {
+		fmt.Println("waiting for 30s")
+		time.Sleep(30 * time.Second)
+		err := dbPinger(db)
+		checkErr(err)
+	}
+}
+
 func exitGracefully(err error) {
-	fmt.Fprintf(os.Stderr, err.Error())
+	fmt.Fprintln(os.Stderr, err.Error())
 	os.Exit(1)
 }
 
