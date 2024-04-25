@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func Test_getConnectionData(t *testing.T) {
+func TestValidateUserInput(t *testing.T) {
 	tests := []struct {
 		name    string
 		want    serverInstance
@@ -43,7 +43,7 @@ func Test_getConnectionData(t *testing.T) {
 	}
 }
 
-func Test_createConnectionString(t *testing.T) {
+func TestCreateConnectionString(t *testing.T) {
 	tests := []struct {
 		name string
 		want string
