@@ -20,9 +20,9 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Error: provide --conn")
 		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "Usage:")
-		fmt.Fprintln(os.Stderr, `  sqlmon --conn "sqlserver://sa:password@localhost"`)
-		fmt.Fprintln(os.Stderr, `  sqlmon --conn "sqlserver://myserver:1433" --interval 10s`)
-		fmt.Fprintln(os.Stderr, `  sqlmon --conn "sqlserver://myserver?trusted_connection=true"`)
+		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://sa:password@localhost"`)
+		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://myserver:1433" --interval 10s`)
+		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://myserver?trusted_connection=true"`)
 		fmt.Fprintln(os.Stderr, "  For further information checkout: https://github.com/microsoft/go-mssqldb")
 		os.Exit(1)
 	}
@@ -33,11 +33,6 @@ func main() {
 	client, err := db.New(*connStr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "\nCould not connect: %v\n\n", err)
-		fmt.Fprintln(os.Stderr, "Things to check:")
-		fmt.Fprintln(os.Stderr, "  • SQL Server is running and reachable")
-		fmt.Fprintln(os.Stderr, "  • Username / password are correct")
-		fmt.Fprintln(os.Stderr, "  • Login has VIEW SERVER STATE permission:")
-		fmt.Fprintln(os.Stderr, "      GRANT VIEW SERVER STATE TO [yourlogin];")
 		os.Exit(1)
 	}
 	defer client.Close()
@@ -48,7 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf(
-		"Received this response from the remote host:\n"+
+		"received this response from the remote host:\n"+
 			" • spid:\t\t%d\n"+
 			" • server_name:\t\t%s\n"+
 			" • service_name:\t%s\n"+
