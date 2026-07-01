@@ -1,20 +1,30 @@
+BINARY_NAME := sqltester
+TARGETS := windows/amd64 linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
+
 test:
-	go test -v -cover -short ./...
+	@go test -v -cover -short ./...
+
+run:
+	@go run ./cmd --conn "sqlserver://sa:P%40ssW0rd@localhost"
 
 tidy:
-	go mod tidy
+	@go mod tidy
 
-build:
-	GOOS='windows' GOARCH='amd64' go build .
+build: $(TARGETS)
+	
+$(TARGETS):
+	$(eval GOOS := $(word 1,$(subst /, ,$@)))
+	$(eval GOARCH := $(word 2,$(subst /, ,$@)))
+	$(eval EXT := $(if $(filter windows,$(GOOS)),.exe,))
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o ./bin/$(BINARY_NAME).$(GOOS).$(GOARCH)$(EXT) ./cmd
 
 clean:
-	rm -rf sqltester.exe
-	rm -rf sqltester
+	@rm -rf bin
 
 listdepupdates:
-	go list -m -u all
+	@go list -m -u all
 
 updatedeps:
-	go get -u
+	@go get -u
 
-.PHONY: test tidy build listdepupdates updatedeps
+.PHONY: test run tidy build $(TARGETS) listdepupdates updatedeps
