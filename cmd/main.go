@@ -10,6 +10,12 @@ import (
 	"github.com/soccypowa/sqltester/internal/db"
 )
 
+var (
+	Version   = "dev"
+	BuildTime = ""
+	GitCommit = ""
+)
+
 func main() {
 	connStr := flag.String("conn", "", "SQL Server connection string\n"+
 		"  sqlserver://user:password@host[:port][/instance][?option1=value&option2=value]\n"+
