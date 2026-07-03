@@ -1,20 +1,17 @@
 # SQLtester
 
-## Description
+## Bakgrund
 
-Simple test tool to tes connectivity to MSSQL instances (default + named). The background for the tool is to have a "windows independent" test tool for connections issues that does not rely on windows drivers. Second goal being a tool that can test if the sql connection is brooken (the *pings* feature).
+Tänk om man hade ett verktyg så man kunde testa anslutningar till SQL server utan att vara beroende av operativsystemets (Windows 😣) nycker vad det gäller drivrutiner, begränsade kommandon via cli som kanske inte ens är installerade eller behöva öppna ODBC-hanteraren.
 
-Uses Windows Authentication and can be forced to use encryption with optional flag. 
-
-The flag *pings* can be used to send a number of pings with a 30 second delay in-between. Ex: -pings 2 = ping - 30s - ping
+Därför finns *sqltester* ett litet enkelt program byggt i Go som kan testa anslutningen via ett simpelt litet kommando och du får tillbaka ett riktigt svar från databasmotorn. Allt som behövs är en liten liten connectionsträng.
 
 ## Usage
 
-sqltester.exe [OPTIONS] instance
+sqltester --conn "sqlserver://user:password@host[:port][/instance][?option1=value&option2=value]"
 
-sqltester.exe -encrypt myserver
+sqltester --conn "sqlserver://sa:password@host"
 
-sqltester.exe -pings 2 myserver
+sqltester --conn "sqlserver://host?trusted_connection=true"
 
-
-sqltester.exe myserver\myinstance
+För ytterligare information ta en titt på: https://github.com/microsoft/go-mssqldb
