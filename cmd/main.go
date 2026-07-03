@@ -12,7 +12,7 @@ import (
 
 func main() {
 	connStr := flag.String("conn", "", "SQL Server connection string\n"+
-		"  sqlserver://user:password@host[:port][/instance]\n"+
+		"  sqlserver://user:password@host[:port][/instance][?option1=value&option2=value]\n"+
 		"  sqlserver://host?trusted_connection=true  (Windows auth)\n"+
 		"  For further information checkout: https://github.com/microsoft/go-mssqldb")
 	flag.Parse()
@@ -21,7 +21,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "Usage:")
 		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://sa:password@localhost"`)
-		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://myserver:1433" --interval 10s`)
 		fmt.Fprintln(os.Stderr, `  sqltester --conn "sqlserver://myserver?trusted_connection=true"`)
 		fmt.Fprintln(os.Stderr, "  For further information checkout: https://github.com/microsoft/go-mssqldb")
 		os.Exit(1)
@@ -42,16 +41,7 @@ func main() {
 		fmt.Printf("received a error from the remote host: %v", err)
 		os.Exit(1)
 	}
-	fmt.Printf(
-		"received this response from the remote host:\n"+
-			" • spid:\t\t%d\n"+
-			" • server_name:\t\t%s\n"+
-			" • service_name:\t%s\n"+
-			" • database_name:\t%s\n"+
-			" • auth_scheme:\t\t%s\n"+
-			" • encryption_option:\t%t\n",
-		response.SPID, response.ServerName, response.ServiceName, response.Database, response.AuthScheme, response.EncryptionOption,
-	)
+	fmt.Print(response)
 }
 
 func extractHost(connStr string) string {

@@ -51,7 +51,7 @@ func (c *Client) Close() {
 	c.db.Close()
 }
 
-type Response struct {
+type ConnectionInfo struct {
 	SPID             int
 	ServerName       string
 	ServiceName      string
@@ -60,7 +60,7 @@ type Response struct {
 	EncryptionOption bool
 }
 
-func (c *Client) GetServerInfo(ctx context.Context) (Response, error) {
+func (c *Client) GetServerInfo(ctx context.Context) (ConnectionInfo, error) {
 	const query = `
 SELECT TOP(1)
 	s.session_id,
@@ -74,8 +74,21 @@ FROM sys.dm_exec_sessions s
 	ON s.session_id = c.session_id
 WHERE s.session_id = @@SPID
 	`
-	var r Response
+	var r ConnectionInfo
 	err := c.db.QueryRowContext(ctx, query).Scan(&r.SPID, &r.ServerName, &r.ServiceName, &r.Database, &r.AuthScheme, &r.EncryptionOption)
 
 	return r, err
+}
+
+func (c ConnectionInfo) String() string {
+	return fmt.Sprintf(
+		"received this response from the remote host:\n"+
+			" • spid:\t\t%d\n"+
+			" • server_name:\t\t%s\n"+
+			" • service_name:\t%s\n"+
+			" • database_name:\t%s\n"+
+			" • auth_scheme:\t\t%s\n"+
+			" • encryption_option:\t%t\n",
+		c.SPID, c.ServerName, c.ServiceName, c.Database, c.AuthScheme, c.EncryptionOption,
+	)
 }
