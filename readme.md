@@ -1,10 +1,10 @@
 # SQLtester
 
-## Bakgrund
+## Background
 
-Tänk om man hade ett verktyg så man kunde testa anslutningar till SQL server utan att vara beroende av operativsystemets (Windows 😣) nycker vad det gäller drivrutiner, begränsade kommandon via cli som kanske inte ens är installerade eller behöva öppna ODBC-hanteraren.
+So I had a long script that tested connections to SQL Server with every thinkable driver in Windows. It was great, but what if I needed a simple tester that was not relying on the drivers of Windows, and what if I needed to test the connectivity from different OS 🤔.
 
-Därför finns *sqltester* ett litet enkelt program byggt i Go som kan testa anslutningen via ett simpelt litet kommando och du får tillbaka ett riktigt svar från databasmotorn. Allt som behövs är en liten liten connectionsträng.
+That is why I came up with **sqltester**, a simple utility built in **go** that easily tests connectivity and receives back a *real* answer from the database engine. Everything needed is a connection string 😄.
 
 ## Usage
 
@@ -14,4 +14,4 @@ sqltester --conn "sqlserver://sa:password@host"
 
 sqltester --conn "sqlserver://host?trusted_connection=true"
 
-För ytterligare information ta en titt på: https://github.com/microsoft/go-mssqldb
+For driver related information check out: https://github.com/microsoft/go-mssqldb
