@@ -7,5 +7,5 @@
 #certs
 *.crt
 
-#bin
-bin
+#build
+build
