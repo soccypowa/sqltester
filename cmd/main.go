@@ -12,8 +12,8 @@ import (
 
 var (
 	Version   = "dev"
-	BuildTime = ""
 	GitCommit = ""
+	BuildTime = ""
 )
 
 func main() {
@@ -21,7 +21,14 @@ func main() {
 		"  sqlserver://user:password@host[:port][/instance][?option1=value&option2=value]\n"+
 		"  sqlserver://host?trusted_connection=true  (Windows auth)\n"+
 		"  For further information checkout: https://github.com/microsoft/go-mssqldb")
+	versionFlag := flag.Bool("version", false, "Show version information and exit")
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Println(versionInfo())
+		return
+	}
+
 	if *connStr == "" {
 		fmt.Fprintln(os.Stderr, "Error: provide --conn")
 		fmt.Fprintln(os.Stderr, "")
@@ -77,4 +84,15 @@ func extractHost(connStr string) string {
 		return "SQL Server"
 	}
 	return s
+}
+
+func versionInfo() string {
+	parts := []string{"sqltester " + Version}
+	if GitCommit != "" {
+		parts = append(parts, "commit "+GitCommit)
+	}
+	if BuildTime != "" {
+		parts = append(parts, "built "+BuildTime)
+	}
+	return strings.Join(parts, ", ")
 }
