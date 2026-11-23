@@ -2,7 +2,7 @@ module github.com/soccypowa/sqltester
 
 go 1.25.7
 
-require github.com/microsoft/go-mssqldb v1.11.2
+require github.com/microsoft/go-mssqldb v1.12.0
 
 require (
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
